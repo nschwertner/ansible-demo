@@ -1,0 +1,16 @@
+---
+- hosts: all:!testserver.com
+  become: yes
+  roles:
+    - common
+
+- hosts: testserver.com
+  remote_user: nikolai
+  become: yes
+  vars:
+    content_repo: https://github.com/nschwertner/medapptech-site
+  gather_facts: no
+  pre_tasks:
+    - raw: sudo apt-get -y install python-simplejson
+  roles:
+    - common

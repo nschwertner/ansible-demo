@@ -1,0 +1,32 @@
+---
+- name: update aptitude
+  apt: update_cache=yes
+  register: result
+  until: result|success
+  retries: 10
+  delay: 10
+
+- name: install packages
+  apt: pkg={{item}}
+  with_items:
+    - nginx
+    - git
+    - aptitude
+
+- name: upgrade packages
+  apt: upgrade=full
+
+- name: checkout content
+  tags: [content]
+  git: repo={{content_repo}} dest={{content_dir}}
+
+- name: add robots.txt
+  tags: [content]
+  copy: src=robots.txt dest={{content_dir}}
+
+#  - name: Create destination directory (Example)
+#    file: path={{content_dir}} state=directory
+
+- name: configure nginx
+  template: src=default.j2 dest=/etc/nginx/sites-enabled/default
+  notify: restart nginx
